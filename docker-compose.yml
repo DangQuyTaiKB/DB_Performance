@@ -1,0 +1,129 @@
+version: '3.9'
+
+volumes:
+  roach1:
+  roach2:
+  roach3:
+  yugabyte_db:
+
+networks:
+  yugabyte_roachnet:
+    driver: bridge
+
+services:
+  ########### postgres ################
+  postgres:
+    container_name: container-pg
+    image: "postgres:16.0"
+    hostname: localhost
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: data
+      POSTGRES_DB: TaiDb
+    networks:
+      - yugabyte_roachnet
+    restart: unless-stopped
+  
+  ########### pgadmin ################
+  pgadmin:
+    container_name: container-pgadmin
+    image: "dpage/pgadmin4:7.8"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    depends_on:
+      - postgres
+    ports:
+      - "5050:80"
+    networks:
+      - yugabyte_roachnet
+    restart: unless-stopped
+
+  ###################### cockroach ######################
+  roach1:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: roach1
+    hostname: roach1
+    restart: unless-stopped
+
+    # joins node with the others creating a cluster
+    command: start --advertise-addr=roach1:26357 --http-addr=roach1:8080 --listen-addr=roach1:26357 --sql-addr=roach1:26257 --insecure --join=roach1:26357,roach2:26357,roach3:26357
+    # command: start --advertise-addr=roach1 --http-addr=roach1 --listen-addr=roach1 --sql-addr=roach1 --insecure --join=roach1,roach2,roach3
+
+    networks:
+      - yugabyte_roachnet
+
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+
+    volumes:
+      - roach1:/cockroach/cockroach-data
+
+
+  roach2:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: roach2
+    hostname: roach2
+    restart: unless-stopped
+
+    # joins node with the others creating a cluster
+    command: start --advertise-addr=roach2:26357 --http-addr=roach2:8081 --listen-addr=roach2:26357 --sql-addr=roach2:26258 --insecure --join=roach1:26357,roach2:26357,roach3:26357
+    # command: start --advertise-addr=roach2 --http-addr=roach2 --listen-addr=roach2 --sql-addr=roach2 --insecure --join=roach1,roach2,roach3
+
+    networks:
+      - yugabyte_roachnet
+
+    ports:
+      - "26258:26258"
+      - "8081:8081"
+
+    volumes:
+      - roach2:/cockroach/cockroach-data
+  
+
+  roach3:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: roach3
+    hostname: roach3
+    restart: unless-stopped
+    
+    # joins node with the others creating a cluster &&
+    command: start --advertise-addr=roach3:26357 --http-addr=roach3:8082 --listen-addr=roach3:26357 --sql-addr=roach3:26259 --insecure --join=roach1:26357,roach2:26357,roach3:26357
+    # command: start --advertise-addr=roach3 --http-addr=roach3 --listen-addr=roach3 --sql-addr=roach3 --insecure --join=roach1,roach2,roach3
+
+    networks:
+      - yugabyte_roachnet
+
+    ports:
+      - "26259:26259"
+      - "8082:8082"
+
+    volumes:
+      - roach3:/cockroach/cockroach-data
+
+
+
+
+  yugabyte:
+    image: yugabytedb/yugabyte:2.18.0.1-b4
+    restart: always
+    command: bin/yugabyted start --daemon=false
+    ports:
+      - 7000:7000
+      - 5433:5433
+      - 9000:9000
+      - 9042:9042
+      - 15433:15433
+    volumes:
+      - yugabyte_db:/var/lib/yugabyteql/data
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=data
+      - POSTGRES_DB=Tai_YuDb
+    networks:
+      - yugabyte_roachnet
+
+
