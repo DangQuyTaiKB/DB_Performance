@@ -30,10 +30,11 @@ services:
   gql_ug:
     image: hrbolek/gql_ug
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=example
-      - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_DB=data
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=data
+      # - POSTGRES_HOST=host.docker.internal:5432
+      - POSTGRES_HOST=postgres:5432
+      - POSTGRES_DB=mydb
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
       - DEMO=True
@@ -49,10 +50,11 @@ services:
   gql_forms:
     image: hrbolek/gql_forms
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=example
-      - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_DB=data
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=data
+      # - POSTGRES_HOST=host.docker.internal:5432
+      - POSTGRES_HOST=postgres:5432
+      - POSTGRES_DB=mydb
       - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
