@@ -5,9 +5,9 @@ services:
     image: postgres
     environment:
       # promenne, ktere lze cist v kontejneru
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=data
-      - POSTGRES_DB=mydb
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 60s
