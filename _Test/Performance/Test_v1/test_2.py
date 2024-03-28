@@ -92,6 +92,7 @@ async def run_single_test_set(readp, read):
         }
 
 
+
 async def run_table_tests(on_tick):
     result = []
     for name, queryset in queries.items():
