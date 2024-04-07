@@ -48,32 +48,92 @@ async def run_query_test(query_name, query, url, headers):
 
 
 
-graphql_queries = {  
-   "gql_forms" : """
-   {
-        formCategoryPage {
-        id
-        name
-        nameEn
-        created
-        lastchange
+# graphql_queries = {  
+#    "gql_forms" : """
+#    {
+#         formCategoryPage {
+#         id
+#         name
+#         nameEn
+#         created
+#         lastchange
+#         }
+#     }"""
+#     ,
+#   "gql_ug" : """
+#   {
+#     userPage {
+#       id
+#       name
+#       surname
+#       email
+#       valid
+#     }
+# #   }""",
+#   "gql_lessons" : """
+#   {
+#     plannedLessonPage {
+#       id
+#       name
+#       lastchange
+#       length
+#       order
+#     }
+#   }"""
+# }
+
+
+# graphql_queries = {
+#      "gql_lessons" : """
+#    {
+#      plannedLessonPage {
+#        id
+#        name
+#        lastchange
+#        length
+#        order
+#      }
+#    }"""
+# }
+
+# graphql_queries = {
+#     "gql_forms" : """
+#     {
+#         formCategoryPage {
+#         id
+#         name
+#         nameEn
+#         created
+#         lastchange
+#         }
+#     }"""
+# }
+# graphql_queries = {
+#     "gql_projects" : """
+#     {
+#         projectPage {
+#             id
+#             lastchange
+#             name
+#         }
+#     }"""
+# }
+graphql_queries = {
+    "gql_presences" : """
+    {
+        taskPage {
+            id      
+            name
+            lastchange
+            briefDes
+            dateOfEntry
+            dateOfFulfillment
+            dateOfSubmission
+            detailedDes
+            reference
         }
     }"""
-    ,
-  "gql_ug" : """
-  {
-    userPage {
-      id
-      name
-      surname
-      email
-      valid
-    }
-  }"""
 }
-
-
-
 
 gateway_url = "http://localhost:33000/api/gql"
 headers = {"Content-Type": "application/json"}

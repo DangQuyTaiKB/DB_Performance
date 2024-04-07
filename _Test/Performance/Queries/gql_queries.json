@@ -1,6 +1,6 @@
 {  
   "gql_ug" : "{  userPage {\n    id\n    name\n    surname\n    email\n    valid\n  }\n}",
   "gql_facilities" : "{\n  facilityEventStateTypePage {\n    id\n    name\n    nameEn\n    lastchange\n  }\n}",
-  "gql_forms" : "{\n  formCategoryPage {\n    id\n    name\n    nameEn\n    created\n    lastchange\n  }\n}"
-  
+  "gql_forms" : "{\n  formCategoryPage {\n    id\n    name\n    nameEn\n    created\n    lastchange\n  }\n}",
+  "gql_lessons" : "{\n  plannedLessonPage {\n    id\n    name\n    lastchange\n    length\n    order\n  }\n}"
 }
