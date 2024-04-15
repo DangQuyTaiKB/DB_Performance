@@ -256,7 +256,7 @@ services:
         condition: service_completed_successfully
 
   gql_forms:
-    image: hrbolek/gql_forms
+    image: dangquytaikb/gql_forms:latest
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432

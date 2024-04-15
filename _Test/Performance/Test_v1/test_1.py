@@ -6,16 +6,6 @@ import matplotlib.pyplot as plt
 import asyncio
 import aiohttp
 
-async def send_query_async(query, url, headers):
-    """Send a GraphQL query asynchronously and return the response time and the response."""
-    payload = {"query": query}
-    async with aiohttp.ClientSession() as session:
-        start_time = time.time()
-        async with session.post(url, json=payload, headers=headers) as response:
-            end_time = time.time()
-            response_text = await response.text()  # or use `await response.json()` if the response is JSON
-            return response_text, end_time - start_time, response.status
-
 def analyze_times(times):
     if not times:  # Check if times is empty
         print("No successful requests, cannot analyze times.")
@@ -30,14 +20,24 @@ def analyze_times(times):
 
 
 
+async def send_query_async(query, url, headers):
+    """Send a GraphQL query asynchronously and return the response time and the response."""
+    payload = {"query": query}
+    async with aiohttp.ClientSession() as session:
+        start_time = time.time()
+        async with session.post(url, json=payload, headers=headers) as response:
+            end_time = time.time()
+            response_text = await response.text()  # or use `await response.json()` if the response is JSON
+            return response_text, end_time - start_time, response.status
+
 async def run_query_test(query_name, query, url, headers):
     """Run a stress test for a single query."""
     times = []
     for _ in range(10):
         response_text, response_time, status_code = await send_query_async(query, url, headers)
         if status_code == 200:
-            print(f"Response time for {query_name}: {response_time} seconds")
-            print(f"Response for {query_name}: {response_text}")
+            # print(f"Response time for {query_name}: {response_time} seconds")
+            # print(f"Response for {query_name}: {response_text}")
             times.append(response_time)
         else:
             print(f"Error: {status_code}")
@@ -118,6 +118,7 @@ async def run_query_test(query_name, query, url, headers):
 #         }
 #     }"""
 # }
+
 graphql_queries = {
     "gql_presences" : """
     {
@@ -134,6 +135,15 @@ graphql_queries = {
         }
     }"""
 }
+# graphql_queries = {
+#     "gql_presences" : """
+#     {
+#         taskPage {
+#             id      
+#         }
+#     }"""
+# }
+
 
 gateway_url = "http://localhost:33000/api/gql"
 headers = {"Content-Type": "application/json"}

@@ -1,6 +1,10 @@
 {  
-  "gql_ug" : "{  userPage {\n    id\n    name\n    surname\n    email\n    valid\n  }\n}",
-  "gql_facilities" : "{\n  facilityEventStateTypePage {\n    id\n    name\n    nameEn\n    lastchange\n  }\n}",
-  "gql_forms" : "{\n  formCategoryPage {\n    id\n    name\n    nameEn\n    created\n    lastchange\n  }\n}",
-  "gql_lessons" : "{\n  plannedLessonPage {\n    id\n    name\n    lastchange\n    length\n    order\n  }\n}"
+  "gql_ug" : "{  userPage {\n    id\n    name\n    valid\n    lastchange\n    fullname\n    email\n    surname\n    created\n  }\n}",
+  "gql_facilities" : "{\n  facilityTypePage {\n    id\n    lastchange\n    name\n    nameEn\n    created\n  }\n}",
+  "gql_forms" : "{\n  formPage {\n    id\n    created\n    lastchange\n    name\n    nameEn\n    valid\n    status\n  }\n}",
+  "gql_lessons" : "{\n  plannedLessonPage {\n    id\n    name\n    lastchange\n    length\n    order\n  }\n}",
+  "gql_granting" : "{\n  acProgramTitleTypePage {\n    id\n    name\n    nameEn\n    created\n    lastchange\n  }\n}",
+  "gql_event" : "{\n  eventPage {\n    created\n    enddate\n    description\n    id\n    name\n    nameEn\n    startdate\n    lastchange\n  }\n}",
+  "gql_projects" : "{\n   projectPage {\n    created\n    enddate\n    id\n    lastchange\n    name\n    startdate\n  }\n}",
+  "gql_presences" : "{\n  taskPage {\n    id      \n    name\n    lastchange\n    briefDes\n    dateOfEntry\n    dateOfFulfillment\n    dateOfSubmission\n    detailedDes\n    reference\n  }\n}"
 }

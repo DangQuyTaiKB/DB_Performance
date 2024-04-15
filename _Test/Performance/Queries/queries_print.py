@@ -15,13 +15,16 @@ def convert_to_python_string(query):
 
 
 query = """
-{  userPage {
-    id
+{taskPage {
+    id      
     name
-    surname
-    email
-    valid
-  }
+    lastchange
+    briefDes
+    dateOfEntry
+    dateOfFulfillment
+    dateOfSubmission
+    detailedDes
+    reference
 }
 """
 
@@ -36,4 +39,4 @@ print(convert_to_python_string(query[1:]))
 
 # print( "{\n  projectCategoryPage {\n    id\n    lastchange\n    name\n    nameEn\n  }\n}")
 
-print("{\n  taskPage {\n    id\n    name\n    lastchange\n    briefDes\n    dateOfEntry\n    dateOfFulfillment\n    dateOfSubmission\n    detailedDes\n    reference\n  }\n}")
+# print("{\n  taskPage {\n    id\n    name\n    lastchange\n    briefDes\n    dateOfEntry\n    dateOfFulfillment\n    dateOfSubmission\n    detailedDes\n    reference\n  }\n}")

@@ -179,7 +179,7 @@ services:
       - postgres_gql
 
   gql_forms:
-    image: hrbolek/gql_forms
+    image: dangquytaikb/gql_forms:latest
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
@@ -338,37 +338,37 @@ services:
     ports:
       - 31122:80
 
-  prometheus:
-    image: prom/prometheus
-    restart: always
-    volumes:
-      - ./prometheus:/etc/prometheus/
-      # - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-    ports:
-      - 9090:9090
-    # links:
-    #   - cadvisor:cadvisor
-    #   - alertmanager:alertmanager
-    # depends_on:
-    #   - cadvisor
+  # prometheus:
+  #   image: prom/prometheus
+  #   restart: always
+  #   volumes:
+  #     - ./prometheus:/etc/prometheus/
+  #     # - prometheus_data:/prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+  #     - '--web.console.templates=/usr/share/prometheus/consoles'
+  #   ports:
+  #     - 9090:9090
+  #   # links:
+  #   #   - cadvisor:cadvisor
+  #   #   - alertmanager:alertmanager
+  #   # depends_on:
+  #   #   - cadvisor
 
-  grafana:
-    image: grafana/grafana
-    user: '472'
-    restart: always
-    environment:
-      GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource'
-    # volumes:
-    #   - grafana_data:/var/lib/grafana
-    #   - ./grafana/provisioning/:/etc/grafana/provisioning/
-    # env_file:
-    #   - ./grafana/config.monitoring
-    ports:
-      - 8300:3000
-    depends_on:
-      - prometheus
+  # grafana:
+  #   image: grafana/grafana
+  #   user: '472'
+  #   restart: always
+  #   environment:
+  #     GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource'
+  #   # volumes:
+  #   #   - grafana_data:/var/lib/grafana
+  #   #   - ./grafana/provisioning/:/etc/grafana/provisioning/
+  #   # env_file:
+  #   #   - ./grafana/config.monitoring
+  #   ports:
+  #     - 8300:3000
+  #   depends_on:
+  #     - prometheus
