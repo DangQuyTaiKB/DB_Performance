@@ -15,22 +15,58 @@ def convert_to_python_string(query):
 
 
 query = """
-{taskPage {
-    id      
-    name
-    lastchange
-    briefDes
-    dateOfEntry
-    dateOfFulfillment
-    dateOfSubmission
-    detailedDes
-    reference
+{groupById(id: "2d9dcd22-a4a2-11ed-b9df-0242ac120003")
+{
+            id
+            name
+            roles {
+            user {
+                id
+                name
+                surname
+                email
+            }
+            roletype {
+                id
+                name
+            }
+            }
+            subgroups {
+            id
+            name
+            }
+            memberships {
+            user {
+                id
+                name
+
+                roles {
+                roletype {
+                    id
+                    name
+                }
+                group {
+                    id
+                    name
+                }
+                }
+
+                membership {
+                group {
+                    id
+                    name
+                }
+                }
+            }
+            }
+        }
 }
 """
 
 print(convert_to_python_string(query[1:]))
 
 
+# print(str())
 
 
 # The repr() function returns a string containing a printable representation of an object. For strings, this means it includes the quotes and any special characters are escaped with backslashes. So, for a multi-line string, repr() will include the newline characters as \n in the output.

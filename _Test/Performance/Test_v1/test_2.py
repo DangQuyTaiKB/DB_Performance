@@ -100,11 +100,15 @@ async def run_table_tests(on_tick):
         readp, read = queryset.get("readp"), queryset.get("read")
         if readp and read:
             print("runTableTests", name)
+
+
             result_item = await run_single_test_set(readp, read)
             if result_item:
                 result.append({**result_item, "query": f"{name} - by id"})
                 if on_tick:
                     on_tick([{**result_item, "query": f"{name} - by id"}])
+
+
     return result
 
 
@@ -115,14 +119,20 @@ async def run_table_tests_stress(on_tick):
         readp, read = queryset.get("readp"), queryset.get("read")
         if readp and read:
             print("runTableTests", name)
+
+
             idxs = list(range(10))
             promises = [run_single_test_set(readp, read) for _ in idxs]
             result_items = await asyncio.gather(*promises)
             for result_item in result_items:
                 if result_item:
                     result.append({**result_item, "query": f"{name} - by id parallel"})
+
+                    
                     if on_tick:
                         on_tick([{**result_item, "query": f"{name} - by id parallel"}])
+
+
     return result
 
 

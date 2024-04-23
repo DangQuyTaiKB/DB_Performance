@@ -1,0 +1,8 @@
+{
+  "gql_ug_v1": "{ groupById(id: \"2d9dcd22-a4a2-11ed-b9df-0242ac120003\") { id name roles { user { id name surname email } roletype { id name } } subgroups { id name } memberships { user { id name } } } }}",
+  "gql_roletypes": "{ roleTypePage { id name } }",
+  "gql_ug_v2": {
+    "query": "query Query($groupByIdId: UUID!) { groupById(id: $groupByIdId) { memberships { user { id } } id } }",
+    "variables": {"groupByIdId": "2d9dcd22-a4a2-11ed-b9df-0242ac120003"}
+  }
+}
