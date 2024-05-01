@@ -1,0 +1,10 @@
+{ 
+ "workload_1" : "{ userPage {  id  name  valid  lastchange  fullname  email  surname  created }}",
+ "workload_2" : "{ formPage {  id  created  lastchange  name  nameEn  valid  status }}",
+ "workload_3" : "{ acProgramTitleTypePage {  id  name  nameEn  created  lastchange }}",
+ "workload_4" : "{ eventPage {  created  enddate  description  id  name  nameEn  startdate  lastchange }}",
+ "workload_5" : "{ taskPage {  id name  lastchange  briefDes  dateOfEntry  dateOfFulfillment  dateOfSubmission  detailedDes  reference }}",
+ "workload_6": "{ facilityTypePage {  id  lastchange  name  nameEn  created } plannedLessonPage {  id  name  lastchange  length  order}}",
+ "workload_7": "{ eventPage {  created  enddate  description  id  name  nameEn  startdate  lastchange } projectPage {  created  enddate  id  lastchange  name  startdate } acProgramTitleTypePage {  id  name  nameEn  created  lastchange }}",
+ "workload_8": "{ taskPage {  id name  lastchange  briefDes  dateOfEntry  dateOfFulfillment  dateOfSubmission  detailedDes  reference } acProgramTitleTypePage {  id  name  nameEn  created  lastchange } plannedLessonPage {  id  name  lastchange  length  order } facilityTypePage {  id  lastchange  name  nameEn  created }} "
+}

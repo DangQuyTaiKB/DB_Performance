@@ -1,3 +1,0 @@
-﻿{  
-  "gql_ug" : "{  userPage {\n    id\n    name\n    valid\n    lastchange\n    fullname\n    email\n    surname\n    created\n  }\n}"
-}

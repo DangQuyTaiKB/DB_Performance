@@ -1,22 +1,30 @@
 {
-  "gql_ug_test_large_query": {
-    "query": "query ($id: UUID!) { groupById(id: $id) { id name roles { user { id name surname email } roletype { id name } } subgroups { id name } memberships { user { id name } } } }",
-    "variables": {"id": "2d9dcd22-a4a2-11ed-b9df-0242ac120003"}
+  "userById_1": {
+    "query": "query($id: UUID!){ userById(id: $id) { id membership { id valid user { id } group { id } startdate enddate } } }",
+    "variables": {"id": "2d9dc5ca-a4a2-11ed-b9df-0242ac120003"}
   },
-
-  "gql_roletypes": {
-    "query":"{ roleTypePage { id name } }", 
-    "variables": {}
+  "userById_2": {
+    "query": "query($id: UUID!){ userById(id: $id) { id name surname fullname email membership { id valid } valid roles { id } createdby { id } changedby { id } } }",
+    "variables": {"id": "2d9dc5ca-a4a2-11ed-b9df-0242ac120003"}
   },
-
-  "gql_ug_v2": {
+  "groupById_1": {
     "query": "query ($groupByIdId: UUID!) { groupById(id: $groupByIdId) { memberships { user { id } } id } }",
     "variables": {"groupByIdId": "2d9dcd22-a4a2-11ed-b9df-0242ac120003"}
   },
 
-  "user_insert": {
-    "query": "mutation($name: String!) { userInsert(user: { name: $name }){ id msg user { id name lastchange } } }",
-    "variables": {"name": "New User"}
-  }
+  "groupById_2": {
+    "query": "query ($id: UUID!) { groupById(id: $id) { id name roles { user { id name surname email } roletype { id name } } subgroups { id name } memberships { user { id name } } } }",
+    "variables": {"id": "2d9dcd22-a4a2-11ed-b9df-0242ac120003"}
+  },
 
+  "user_insert": {
+    "query": "mutation ($id: UUID!, $name: String!, $surname: String!, $email: String!) { result: userInsert(user: {id: $id, name: $name, surname: $surname, email: $email}) { id user { name surname email lastchange } } }",
+    "variables": {"id": "850b03cf-a69a-4a6c-b980-1afaf5be174b", "name": "newname0", "surname": "surname0", "email": "email0"}
+  },
+
+  "user_update": {
+    "query": "mutation ($id: UUID!, $lastchange: DateTime!, $name: String!) { result: userUpdate(user: {id: $id, lastchange: $lastchange, name: $name}) { id user { name lastchange memberOf(grouptypeId: \"cd49e157-610c-11ed-9312-001a7dda7110\") { id } } } }",
+    "variables": {"id": "89d1f4e4-ae0f-11ed-9bd8-0242ac110002", "name": "newname", "lastchange":"2024-04-25T10:32:05.831327"}
+  }
+  
 }
