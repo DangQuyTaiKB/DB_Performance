@@ -1,6 +1,66 @@
-﻿version: "3.8"
-
+﻿version: '3.8'
+volumes:
+  pgprimary_data:
 services:
+  pgprimary:
+    image: bitnami/postgresql:13.1.0
+    ports:
+      - 5432
+    volumes:
+      - pgprimary_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=postgres
+      - POSTGRESQL_REPLICATION_PASSWORD=example
+      - POSTGRESQL_PASSWORD=example
+      - POSTGRESQL_DATABASE=data
+  pgreplica:
+    image: bitnami/postgresql:13.1.0
+    ports:
+      - 5432
+    depends_on:
+      - pgprimary
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=postgres
+      - POSTGRESQL_REPLICATION_PASSWORD=example
+      - POSTGRESQL_MASTER_HOST=pgprimary
+      - POSTGRESQL_PASSWORD=example
+  pgpool:
+    image: bitnami/pgpool:4.2.1
+    ports:
+      - 5432:5432
+    depends_on:
+      - pgprimary
+    environment:
+      - PGPOOL_BACKEND_NODES=0:pgprimary:5432:4:primary:ALWAYS_PRIMARY,1:pgreplica:5432:6:replica
+      - PGPOOL_POSTGRES_USERNAME=postgres
+      - PGPOOL_POSTGRES_PASSWORD=example
+      - PGPOOL_ADMIN_USERNAME=admin
+      - PGPOOL_ADMIN_PASSWORD=example
+      - PGPOOL_ENABLE_LOAD_BALANCING=yes
+      - PGPOOL_ENABLE_STATEMENT_LOAD_BALANCING=yes
+      - PGPOOL_NUM_INIT_CHILDREN=10
+      - PGPOOL_MAX_POOL=1
+      - PGPOOL_SR_CHECK_USER=postgres
+      - PGPOOL_SR_CHECK_PASSWORD=example
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      # promenne, ktere lze cist v kontejneru
+      - PGADMIN_DEFAULT_EMAIL=anoyne@anywhere.com
+      - PGADMIN_DEFAULT_PASSWORD=example
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+    ports:
+      - 31122:80
+
+  
   frontend:
     image: hrbolek/frontend
     environment:
@@ -77,7 +137,7 @@ services:
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_HOST=postgres_gql:5432
+      - POSTGRES_HOST=pgprimary:5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=example
       - POSTGRES_DB=data
@@ -97,7 +157,7 @@ services:
     # ports:
     #   - 33012:8000
     depends_on:
-      - postgres_gql
+      - pgprimary
 
   gql_events:
     # image: nafreju2/gql_events # where u user.events
@@ -105,7 +165,7 @@ services:
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_HOST=postgres_gql:5432
+      - POSTGRES_HOST=pgprimary:5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=example
       - POSTGRES_DB=data
@@ -118,14 +178,14 @@ services:
     # ports:
     #   - 33331:8000
     depends_on:
-      - postgres_gql
+      - pgprimary
 
   gql_lessons:
     image: dangquytaikb/gql_lessons:latest
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_HOST=postgres_gql:5432
+      - POSTGRES_HOST=pgprimary:5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=example
       - POSTGRES_DB=data
@@ -138,14 +198,14 @@ services:
     # ports:
     #   - 33331:8000
     depends_on:
-      - postgres_gql
+      - pgprimary
 
   gql_facilities:
     image: dangquytaikb/gql_facilities:latest
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_HOST=postgres_gql:5432
+      - POSTGRES_HOST=pgprimary:5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=example
       - POSTGRES_DB=data
@@ -158,14 +218,14 @@ services:
     # ports:
     #   - 33331:8000
     depends_on:
-      - postgres_gql
+      - pgprimary
 
   gql_granting:
     image: dangquytaikb/gql_granting:latest
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_HOST=postgres_gql:5432
+      - POSTGRES_HOST=pgprimary:5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=example
       - POSTGRES_DB=data
@@ -176,14 +236,14 @@ services:
       - DEMO=True
       - DEMODATA=True
     depends_on:
-      - postgres_gql
+      - pgprimary
 
   gql_forms:
     image: dangquytaikb/gql_forms:latest
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_HOST=postgres_gql:5432
+      - POSTGRES_HOST=pgprimary:5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=example
       - POSTGRES_DB=data
@@ -203,7 +263,7 @@ services:
     # ports:
     #   - 33013:8000
     depends_on:
-      - postgres_gql
+      - pgprimary
 
 
   gql_projects:
@@ -211,7 +271,7 @@ services:
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_HOST=postgres_gql:5432
+      - POSTGRES_HOST=pgprimary:5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=example
       - POSTGRES_DB=data
@@ -232,14 +292,14 @@ services:
       # ports:
       #   - 33013:8000
     depends_on:
-      - postgres_gql
+      - pgprimary
 
   gql_presences:
     image: dangquytaikb/gql_presences:latest
     environment:
       # link na db mimo stack
       # - POSTGRES_HOST=host.docker.internal:5432
-      - POSTGRES_HOST=postgres_gql:5432
+      - POSTGRES_HOST=pgprimary:5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=example
       - POSTGRES_DB=data
@@ -260,54 +320,8 @@ services:
       # ports:
       #   - 33013:8000
     depends_on:
-      - postgres_gql
+      - pgprimary
 
-
-  # gql_externalids:
-  #   image: dangquytaikb/gql_externalids:main
-  #   environment:
-  #     # link na db mimo stack
-  #     # - POSTGRES_HOST=host.docker.internal:5432
-  #     - POSTGRES_HOST=postgres_gql:5432
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=example
-  #     - POSTGRES_DB=data
-  #     - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
-  #     - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
-  #     - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-  #     # - DEMO=False
-  #     - DEMO=True
-  #     - DEMODATA=True
-  #   healthcheck:
-  #       # definice, umoznujici provest test, zda je kontejner v poradku
-  #     test: "curl -f -H 'Content-Type: application/json' -X POST -d '{\"query\":\"query{__schema{types{name}}}\"}' http://localhost:8000/gql || exit 1"
-  #     interval: 60s
-  #     retries: 3
-  #     start_period: 60s
-  #     timeout: 10s
-  #   restart: on-failure:3 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
-  #     # ports:
-  #     #   - 33013:8000
-  #   depends_on:
-  #     - postgres_gql
-
-
-    
-  postgres_gql:
-    image: postgres
-    environment:
-      # promenne, ktere lze cist v kontejneru
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=example
-      - POSTGRES_DB=data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 60s
-      timeout: 10s
-      retries: 5
-    restart: on-failure:3 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
-    ports:
-      - 5432:5432
 
   postgres_credentials:
     image: postgres
@@ -323,52 +337,9 @@ services:
       retries: 5
     restart: on-failure:3 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
 
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    environment:
-      # promenne, ktere lze cist v kontejneru
-      - PGADMIN_DEFAULT_EMAIL=anoyne@anywhere.com
-      - PGADMIN_DEFAULT_PASSWORD=example
-    healthcheck:
-      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
-      interval: 60s
-      timeout: 10s
-      retries: 5
-    ports:
-      - 31122:80
 
-  # prometheus:
-  #   image: prom/prometheus
-  #   restart: always
-  #   volumes:
-  #     - ./prometheus:/etc/prometheus/
-  #     # - prometheus_data:/prometheus
-  #   command:
-  #     - '--config.file=/etc/prometheus/prometheus.yml'
-  #     - '--storage.tsdb.path=/prometheus'
-  #     - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-  #     - '--web.console.templates=/usr/share/prometheus/consoles'
-  #   ports:
-  #     - 9090:9090
-  #   # links:
-  #   #   - cadvisor:cadvisor
-  #   #   - alertmanager:alertmanager
-  #   # depends_on:
-  #   #   - cadvisor
 
-  # grafana:
-  #   image: grafana/grafana
-  #   user: '472'
-  #   restart: always
-  #   environment:
-  #     GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource'
-  #   # volumes:
-  #   #   - grafana_data:/var/lib/grafana
-  #   #   - ./grafana/provisioning/:/etc/grafana/provisioning/
-  #   # env_file:
-  #   #   - ./grafana/config.monitoring
-  #   ports:
-  #     - 8300:3000
-  #   depends_on:
-  #     - prometheus
+
+
+
+

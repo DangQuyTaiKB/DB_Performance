@@ -263,52 +263,6 @@ services:
       - postgres_gql
 
 
-  # gql_externalids:
-  #   image: dangquytaikb/gql_externalids:main
-  #   environment:
-  #     # link na db mimo stack
-  #     # - POSTGRES_HOST=host.docker.internal:5432
-  #     - POSTGRES_HOST=postgres_gql:5432
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=example
-  #     - POSTGRES_DB=data
-  #     - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
-  #     - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
-  #     - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-  #     # - DEMO=False
-  #     - DEMO=True
-  #     - DEMODATA=True
-  #   healthcheck:
-  #       # definice, umoznujici provest test, zda je kontejner v poradku
-  #     test: "curl -f -H 'Content-Type: application/json' -X POST -d '{\"query\":\"query{__schema{types{name}}}\"}' http://localhost:8000/gql || exit 1"
-  #     interval: 60s
-  #     retries: 3
-  #     start_period: 60s
-  #     timeout: 10s
-  #   restart: on-failure:3 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
-  #     # ports:
-  #     #   - 33013:8000
-  #   depends_on:
-  #     - postgres_gql
-
-
-    
-  postgres_gql:
-    image: postgres
-    environment:
-      # promenne, ktere lze cist v kontejneru
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=example
-      - POSTGRES_DB=data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 60s
-      timeout: 10s
-      retries: 5
-    restart: on-failure:3 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
-    ports:
-      - 5432:5432
-
   postgres_credentials:
     image: postgres
     environment:
@@ -338,37 +292,78 @@ services:
     ports:
       - 31122:80
 
-  # prometheus:
-  #   image: prom/prometheus
-  #   restart: always
-  #   volumes:
-  #     - ./prometheus:/etc/prometheus/
-  #     # - prometheus_data:/prometheus
-  #   command:
-  #     - '--config.file=/etc/prometheus/prometheus.yml'
-  #     - '--storage.tsdb.path=/prometheus'
-  #     - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-  #     - '--web.console.templates=/usr/share/prometheus/consoles'
-  #   ports:
-  #     - 9090:9090
-  #   # links:
-  #   #   - cadvisor:cadvisor
-  #   #   - alertmanager:alertmanager
-  #   # depends_on:
-  #   #   - cadvisor
+  postgres_gql:
+    image: postgres
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "example"
+      POSTGRES_DB: "data"
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256\nhost replication all 0.0.0.0/0 md5"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: |
+      postgres
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
 
-  # grafana:
-  #   image: grafana/grafana
-  #   user: '472'
-  #   restart: always
-  #   environment:
-  #     GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource'
-  #   # volumes:
-  #   #   - grafana_data:/var/lib/grafana
-  #   #   - ./grafana/provisioning/:/etc/grafana/provisioning/
-  #   # env_file:
-  #   #   - ./grafana/config.monitoring
-  #   ports:
-  #     - 8300:3000
-  #   depends_on:
-  #     - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+    restart: on-failure:3 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
+    ports:
+      - 5432:5432
+
+    volumes:
+      - ./00_init.sql:/docker-entrypoint-initdb.d/00_init.sql
+
+
+  postgres_gql_replica1:
+    image: postgres
+    environment:
+      POSTGRES_USER: "postgres_replica1"
+      POSTGRES_PASSWORD: "example"
+      command: |
+        bash -c "
+        until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
+        do
+        echo 'Waiting for primary to connect...'
+        sleep 1s
+        done
+        echo 'Backup done, starting replica...'
+        chmod 0700 /var/lib/postgresql/data
+        postgres
+        "
+
+    ports:
+      - 5435:5432
+    depends_on:
+      - postgres_gql
+
+  postgres_gql_replica2:
+    image: postgres
+    environment:
+      POSTGRES_USER: "postgres_replica2"
+      POSTGRES_PASSWORD: "example"
+      command: |
+        bash -c "
+        until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
+        do
+        echo 'Waiting for primary to connect...'
+        sleep 1s
+        done
+        echo 'Backup done, starting replica...'
+        chmod 0700 /var/lib/postgresql/data
+        postgres
+        "
+
+    ports:
+      - 5436:5432
+    depends_on:
+      - postgres_gql
+
+    
+
