@@ -1,0 +1,190 @@
+﻿version: '3.9'
+
+# volumes:
+#   roach1:
+#   roach2:
+#   roach3:
+
+
+services:
+  ###################### cockroach ######################
+  roach1:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: roach1
+    hostname: roach1
+    restart: unless-stopped
+    # joins node with the others creating a cluster
+    command: start --advertise-addr=roach1:26357 --http-addr=roach1:8080 --listen-addr=roach1:26357 --sql-addr=roach1:26257 --insecure --join=roach1:26357,roach2:26357,roach3:26357
+    # command: start --advertise-addr=roach1 --http-addr=roach1 --listen-addr=roach1 --sql-addr=roach1 --insecure --join=roach1,roach2,roach3
+
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+
+    # volumes:
+    #   - roach1:/cockroach/cockroach-data
+
+    healthcheck:
+      test: [ "CMD", "curl", "http://roach1:8080/health?ready=1" ]
+      interval: 2s
+      timeout: 1m
+      retries: 5
+      start_period: 10s
+
+  roach2:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: roach2
+    hostname: roach2
+    restart: unless-stopped
+
+    # joins node with the others creating a cluster
+    command: start --advertise-addr=roach2:26357 --http-addr=roach2:8081 --listen-addr=roach2:26357 --sql-addr=roach2:26258 --insecure --join=roach1:26357,roach2:26357,roach3:26357
+    # command: start --advertise-addr=roach2 --http-addr=roach2 --listen-addr=roach2 --sql-addr=roach2 --insecure --join=roach1,roach2,roach3
+
+    ports:
+      - "26258:26258"
+      - "8081:8081"
+    # volumes:
+    #   - roach2:/cockroach/cockroach-data
+    depends_on:
+      - roach1
+
+    healthcheck:
+      test: [ "CMD", "curl", "http://roach2:8081/health?ready=1" ]
+      interval: 2s
+      timeout: 1m
+      retries: 5
+      start_period: 10s
+
+  roach3:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: roach3
+    hostname: roach3
+    restart: unless-stopped
+
+    # joins node with the others creating a cluster &&
+    command: start --advertise-addr=roach3:26357 --http-addr=roach3:8082 --listen-addr=roach3:26357 --sql-addr=roach3:26259 --insecure --join=roach1:26357,roach2:26357,roach3:26357
+
+    ports:
+      - "26259:26259"
+      - "8082:8082"
+    # volumes:
+    #   - roach3:/cockroach/cockroach-data
+    depends_on:
+      - roach1
+
+    healthcheck:
+      test: [ "CMD", "curl", "http://roach3:8082/health?ready=1" ]
+      interval: 2s
+      timeout: 1m
+      retries: 5
+      start_period: 10s
+
+  roach-init:
+    container_name: roach-init
+    image: cockroachdb/cockroach:v23.1.11
+    depends_on:
+      - roach1
+      - roach2
+      - roach3
+    entrypoint:
+      [
+        "./cockroach",
+        "init",
+        "--insecure",
+        "--host=roach1:26357"
+      ]
+
+  roach-db-create:
+    container_name: roach-db-create
+    image: cockroachdb/cockroach:v23.1.11
+    depends_on:
+      - roach1
+      - roach2
+      - roach3
+      - roach-init
+    command:
+      [
+        "sql",
+        "--insecure",
+        "--host=roach1:26257",
+        "-e",
+        "CREATE DATABASE mycrdb;"
+      ]
+    # command: ["sql", "--insecure", "--host=roach1:26257", "-e", "CREATE DATABASE mycrdb; CREATE USER myuser WITH PASSWORD 'mypassword'; GRANT ALL ON DATABASE mycrdb TO myuser;"]
+    # command: ["sql", "--insecure", "--host=roach1:26257", "-e", "CREATE DATABASE mycrdb; CREATE USER myuser; GRANT ALL ON DATABASE mycrdb TO myuser;"]
+
+    ############# apollo #######################
+  
+  
+  # ######################## frontend ##############################
+
+  
+  apollo:
+    image: hrbolek/apollo_federation:latest
+    container_name: apollo
+    environment:
+      # promenne, ktere lze cist v kontejneru
+      - PORT=3000
+      - |
+        SERVICES=
+        [
+
+          {"name": "events", "url": "http://gql_events:8000/gql"}
+        ]
+    healthcheck:
+      # definice, umoznujici provest test, zda je kontejner v poradku (vsimnete si portu a srovnejte s portem v environment)
+      interval: 60s
+      retries: 3
+      start_period: 60s
+      timeout: 10s
+    restart: on-failure:3 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
+    ports:
+      #v deploymentu by nebylo zadne mapovani portu
+      #   # vnejsi port : port, kde sluzbu poskytuje kontejner
+      - 33000:3000
+    depends_on:
+      - gql_events
+
+
+  gql_events:
+    image: dangquytaikb/gql_events:latest
+    container_name: gql_events
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=
+      - POSTGRES_HOST=roach1:26257
+      - POSTGRES_DB=mycrdb
+      - IS_COCKROACH=True
+      - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
+      - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
+      - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
+      # - DEMO=False
+      - DEMO=True
+      - DEMODATA=True
+    healthcheck:
+      # definice, umoznujici provest test, zda je kontejner v poradku
+      test: "curl -f -H 'Content-Type: application/json' -X POST -d '{\"query\":\"query{__schema{types{name}}}\"}' http://localhost:8000/gql || exit 1"
+      interval: 30s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
+    restart: on-failure:30 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
+    ports:
+      - 32803:8000 # ray made up this port number
+
+    depends_on:
+      roach1:
+        condition: service_started
+      roach2:
+        condition: service_started
+      roach3:
+        condition: service_started
+      roach-init:
+        condition: service_completed_successfully
+      roach-db-create:  
+        condition: service_completed_successfully
+
+
+
+
