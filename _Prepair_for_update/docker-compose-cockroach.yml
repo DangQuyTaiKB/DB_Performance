@@ -1,10 +1,5 @@
 ﻿version: '3.9'
 
-# volumes:
-#   roach1:
-#   roach2:
-#   roach3:
-
 
 services:
   ###################### cockroach ######################
@@ -130,7 +125,8 @@ services:
         SERVICES=
         [
 
-          {"name": "events", "url": "http://gql_events:8000/gql"}
+          {"name": "events", "url": "http://gql_events:8000/gql"},
+          {"name": "ug", "url": "http://gql_ug:8000/gql"}
         ]
     healthcheck:
       # definice, umoznujici provest test, zda je kontejner v poradku (vsimnete si portu a srovnejte s portem v environment)
@@ -145,18 +141,21 @@ services:
       - 33000:3000
     depends_on:
       - gql_events
+      - gql_ug
 
 
   gql_events:
-    image: dangquytaikb/gql_events:latest
+    # image: dangquytaikb/gql_events:latest
+    image: hrbolek/gql_events
     container_name: gql_events
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=
       - POSTGRES_HOST=roach1:26257
       - POSTGRES_DB=mycrdb
-      - IS_COCKROACH=True
-      - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
+      # - IS_COCKROACH=True
+      - CONNECTION_STRING=cockroachdb+asyncpg://root:@roach1:26257/mycrdb?ssl=disable
+      - GQLUG_ENDPOINT_URL=http://gql_events:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
       # - DEMO=False
@@ -185,6 +184,45 @@ services:
       roach-db-create:  
         condition: service_completed_successfully
 
+  gql_ug:
+    # image: dangquytaikb/gql_ug:latest
+    image: hrbolek/gql_ug
+    container_name: gql_ug
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=
+      - POSTGRES_HOST=roach1:26257
+      - POSTGRES_DB=mycrdb
+      # - IS_COCKROACH=True
+      - CONNECTION_STRING=cockroachdb+asyncpg://root:@roach1:26257/mycrdb?ssl=disable
+      - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
+      - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
+      - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
+      # - DEMO=False
+      - DEMO=True
+      - DEMODATA=True
+    healthcheck:
+      # definice, umoznujici provest test, zda je kontejner v poradku
+      test: "curl -f -H 'Content-Type: application/json' -X POST -d '{\"query\":\"query{__schema{types{name}}}\"}' http://localhost:8000/gql || exit 1"
+      interval: 30s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
+    restart: on-failure:30 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
+    ports:
+      - 32802:8000 # ray made up this port number
+
+    depends_on:
+      roach1:
+        condition: service_started
+      roach2:
+        condition: service_started
+      roach3:
+        condition: service_started
+      roach-init:
+        condition: service_completed_successfully
+      roach-db-create:  
+        condition: service_completed_successfully
 
 
 

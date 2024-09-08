@@ -13,7 +13,7 @@ services:
         [
           {"name": "events", "url": "http://gql_events:8000/gql"},
           {"name": "ug", "url": "http://gql_ug:8000/gql"}
-        ]       
+        ]
     healthcheck:
       # definice, umoznujici provest test, zda je kontejner v poradku (vsimnete si portu a srovnejte s portem v environment)
       interval: 60s
@@ -29,8 +29,8 @@ services:
 
   gql_events:
       # image: nafreju2/gql_events # where u user.events
-      image: dangquytaikb/gql_events:latest
-      # image: hrbolek/gql_events
+      # image: dangquytaikb/gql_events:latest
+      image: hrbolek/gql_events
       container_name: gql_events
       environment:
         # link na db mimo stack
@@ -61,8 +61,8 @@ services:
 
 
   gql_ug:
-    image: dangquytaikb/gql_ug:latest
-    # image: hrbolek/gql_ug
+    # image: dangquytaikb/gql_ug:latest
+    image: hrbolek/gql_ug
     container_name: gql_ug
     environment:
         - POSTGRES_HOST=postgres_gql:5432

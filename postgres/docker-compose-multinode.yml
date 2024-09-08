@@ -343,27 +343,27 @@ services:
     depends_on:
       - postgres_gql
 
-  postgres_gql_replica2:
-    image: postgres
-    environment:
-      POSTGRES_USER: "postgres_replica2"
-      POSTGRES_PASSWORD: "example"
-      command: |
-        bash -c "
-        until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
-        do
-        echo 'Waiting for primary to connect...'
-        sleep 1s
-        done
-        echo 'Backup done, starting replica...'
-        chmod 0700 /var/lib/postgresql/data
-        postgres
-        "
+  # postgres_gql_replica2:
+  #   image: postgres
+  #   environment:
+  #     POSTGRES_USER: "postgres_replica2"
+  #     POSTGRES_PASSWORD: "example"
+  #     command: |
+  #       bash -c "
+  #       until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
+  #       do
+  #       echo 'Waiting for primary to connect...'
+  #       sleep 1s
+  #       done
+  #       echo 'Backup done, starting replica...'
+  #       chmod 0700 /var/lib/postgresql/data
+  #       postgres
+  #       "
 
-    ports:
-      - 5436:5432
-    depends_on:
-      - postgres_gql
+  #   ports:
+  #     - 5436:5432
+  #   depends_on:
+  #     - postgres_gql
 
     
 

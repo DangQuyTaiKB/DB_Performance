@@ -2,9 +2,9 @@
 
 services:
   frontend:
-    image: hrbolek/frontend
+    image: hrbolek/frontend:0.8.5
     environment:
-      # - DEMO=False
+      # - DEMO=True
       - DEMO=True
       - DEMODATA=True
       # link na db mimo stack
@@ -83,7 +83,7 @@ services:
       - POSTGRES_DB=data
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-      # - DEMO=False
+      # - DEMO=True
       - DEMO=True
       - DEMODATA=True
     healthcheck:
@@ -112,7 +112,7 @@ services:
       - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-      # - DEMO=False
+      # - DEMO=True
       - DEMO=True
       - DEMODATA=True
     # ports:
@@ -132,7 +132,7 @@ services:
       - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-      # - DEMO=False
+      # - DEMO=True
       - DEMO=True
       - DEMODATA=True
     # ports:
@@ -152,7 +152,7 @@ services:
       - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-      # - DEMO=False
+      # - DEMO=True
       - DEMO=True
       - DEMODATA=True
     # ports:
@@ -172,7 +172,7 @@ services:
       - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-      # - DEMO=False
+      # - DEMO=True
       - DEMO=True
       - DEMODATA=True
     depends_on:
@@ -190,7 +190,7 @@ services:
       - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-      - DEMO=False
+      - DEMO=True
       - DEMODATA=True
     healthcheck:
       # definice, umoznujici provest test, zda je kontejner v poradku
@@ -218,7 +218,7 @@ services:
       - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-      # - DEMO=False
+      # - DEMO=True
       - DEMO=True
       - DEMODATA=True
     healthcheck:
@@ -246,7 +246,7 @@ services:
       - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
       - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
       - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-      # - DEMO=False
+      # - DEMO=True
       - DEMO=True
       - DEMODATA=True
     healthcheck:
@@ -275,7 +275,7 @@ services:
   #     - GQLUG_ENDPOINT_URL=http://gql_ug:8000/gql
   #     - JWTPUBLICKEYURL=http://frontend:8000/oauth/publickey
   #     - JWTRESOLVEUSERPATHURL=http://frontend:8000/oauth/userinfo
-  #     # - DEMO=False
+  #     # - DEMO=True
   #     - DEMO=True
   #     - DEMODATA=True
   #   healthcheck:
@@ -307,7 +307,7 @@ services:
       retries: 5
     restart: on-failure:3 # nedojde k restartu pokud je kontejner "unhealthy", maximalne 3 pokusy
     ports:
-      - 5432:5432
+      - 5433:5432
 
   postgres_credentials:
     image: postgres
